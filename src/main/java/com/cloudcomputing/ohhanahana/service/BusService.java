@@ -1,9 +1,9 @@
 package com.cloudcomputing.ohhanahana.service;
 
 import com.cloudcomputing.ohhanahana.dto.response.RecommendResponse;
+import com.cloudcomputing.ohhanahana.dto.response.ServiceResult;
 import com.cloudcomputing.ohhanahana.enums.Bus;
 import com.cloudcomputing.ohhanahana.enums.BusStop;
-import com.cloudcomputing.ohhanahana.dto.response.ServiceResult;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -16,7 +16,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
