@@ -6,7 +6,6 @@ import com.cloudcomputing.ohhanahana.dto.response.ShuttleResponse;
 import com.cloudcomputing.ohhanahana.enums.Bus;
 import com.cloudcomputing.ohhanahana.enums.BusStop;
 import com.cloudcomputing.ohhanahana.enums.ShuttleBus;
-import com.cloudcomputing.ohhanahana.mapper.BusMapper;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -26,7 +25,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class BusService {
-    
+
     private final String baseUri = "http://apis.data.go.kr/6280000/busArrivalService/getAllRouteBusArrivalList?serviceKey=";
     private final String serviceKey = "";
 
