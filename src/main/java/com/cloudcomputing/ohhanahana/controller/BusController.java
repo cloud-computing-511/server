@@ -1,6 +1,7 @@
 package com.cloudcomputing.ohhanahana.controller;
 
 import com.cloudcomputing.ohhanahana.dto.response.RecommendResponse;
+import com.cloudcomputing.ohhanahana.dto.response.ShuttleResponse;
 import com.cloudcomputing.ohhanahana.service.BusService;
 import jakarta.xml.bind.JAXBException;
 import lombok.RequiredArgsConstructor;
@@ -25,4 +26,12 @@ public class BusController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @GetMapping("/shuttle")
+    public ResponseEntity<ShuttleResponse> shuttleBus() {
+        return busService.getShuttleBus()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok(null));
+    }
+
 }
