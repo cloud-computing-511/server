@@ -2,8 +2,11 @@ package com.cloudcomputing.ohhanahana.service;
 
 import com.cloudcomputing.ohhanahana.dto.response.RecommendResponse;
 import com.cloudcomputing.ohhanahana.dto.response.ServiceResult;
+import com.cloudcomputing.ohhanahana.dto.response.ShuttleResponse;
 import com.cloudcomputing.ohhanahana.enums.Bus;
 import com.cloudcomputing.ohhanahana.enums.BusStop;
+import com.cloudcomputing.ohhanahana.enums.ShuttleBus;
+import com.cloudcomputing.ohhanahana.mapper.BusMapper;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
@@ -16,16 +19,16 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class BusService {
-
+    
     private final String baseUri = "http://apis.data.go.kr/6280000/busArrivalService/getAllRouteBusArrivalList?serviceKey=";
-    private final String serviceKey = "MP/PZKljnnEeyzcpS63Gp64iWKeTktEfUPgTLTxUkeWfS9PhYf9ru7EG/cYyzR6oRkPIabAduj3ucpq0psgPHQ==";
+    private final String serviceKey = "";
 
     public RecommendResponse getBusArrivalData() throws JAXBException {
         List<BusStop> busStops = Arrays.stream(BusStop.values()).toList();
@@ -65,6 +68,33 @@ public class BusService {
 
         return validateBus(buses);
     }
+
+    public Optional<ShuttleResponse> getShuttleBus() {
+        return findShuttleBus().map(bus -> {
+            LocalTime now = LocalTime.now();
+            LocalTime busTime = LocalTime.of(bus.getHour(), bus.getMinute());
+            int secondsUntilBus = (int) Duration.between(now, busTime).getSeconds();
+            return new ShuttleResponse(
+                    secondsUntilBus,
+                    busTime,
+                    bus.getSrc(),
+                    bus.getDes()
+            );
+        });
+    }
+
+    private Optional<ShuttleBus> findShuttleBus() {
+        LocalTime now = LocalTime.now();
+        LocalTime oneHourLater = now.plusHours(1);
+
+        return Arrays.stream(ShuttleBus.values())
+                .filter(bus -> {
+                    LocalTime busTime = LocalTime.of(bus.getHour(), bus.getMinute());
+                    return busTime.isAfter(now) && busTime.isBefore(oneHourLater);
+                })
+                .min(Comparator.comparing(bus -> LocalTime.of(bus.getHour(), bus.getMinute())));
+    }
+
 
     private RestTemplate createRestTemplate() {
         RestTemplate restTemplate = new RestTemplate(clientHttpRequestFactory());
