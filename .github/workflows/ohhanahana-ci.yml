@@ -35,6 +35,6 @@ jobs:
       run: chmod +x ./gradlew
 
     - name: Build with Gradle
+      run: ./gradlew build
       env:
         SPRING_PROFILES_ACTIVE: main
-      run: ./gradlew build
