@@ -34,9 +34,6 @@ jobs:
         submodules: true
         token: ${{ secrets.ACTIONS_TOKEN }}
 
-    - name: Update submodules
-      run: git submodule update --remote --recursive'
-
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
       
