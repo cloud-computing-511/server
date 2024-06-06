@@ -10,6 +10,7 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -27,7 +28,9 @@ import java.util.*;
 public class BusService {
 
     private final String baseUri = "http://apis.data.go.kr/6280000/busArrivalService/getAllRouteBusArrivalList?serviceKey=";
-    private final String serviceKey = "";
+
+    @Value("${api.bus-information.service-key}")
+    private String serviceKey;
 
     public RecommendResponse getBusArrivalData() throws JAXBException {
         List<BusStop> busStops = Arrays.stream(BusStop.values()).toList();
