@@ -1,5 +1,6 @@
 package com.cloudcomputing.ohhanahana.service;
 
+import com.cloudcomputing.ohhanahana.dto.response.BusResponse;
 import com.cloudcomputing.ohhanahana.dto.response.RecommendResponse;
 import com.cloudcomputing.ohhanahana.dto.response.ServiceResult;
 import com.cloudcomputing.ohhanahana.dto.response.ShuttleResponse;
@@ -31,6 +32,45 @@ public class BusService {
 
     @Value("${api.bus-information.service-key}")
     private String serviceKey;
+
+    public BusResponse getAllBus() throws JAXBException {
+        Optional<ShuttleBus> shuttleBus = findShuttleBus();
+
+        // 유효한 버스 정보 받음
+        RecommendResponse busArrivalData = getBusArrivalData();
+
+        // 각 버스 정류장에 대한 버스 정보 설정
+        BusResponse.BusStop inhaFrontGateBusStop = getBusStopInfo(busArrivalData, BusStop.INHA_FRONT_GATE_1, BusStop.INHA_FRONT_GATE_2);
+        BusResponse.BusStop ddgBusStop = getBusStopInfo(busArrivalData, BusStop.DGG_1, BusStop.DGG_2);
+        BusResponse.BusStop ygBusStop = getBusStopInfo(busArrivalData, BusStop.YONGHYUN);
+
+
+        // Shuttle 버스 정류장 정보 설정
+        BusResponse.BusStop shuttleBusStop = null;
+        if (shuttleBus.isPresent()) {
+            // Shuttle 버스에 대한 로직 구현 (필요한 경우)
+            shuttleBusStop = new BusResponse.BusStop(
+                    "교내 셔틀 승강장",
+                    null,
+                    "셔틀버스",
+                    (int) Duration.between(LocalTime.now(), LocalTime.of(shuttleBus.get().getHour(),
+                            shuttleBus.get().getMinute())).getSeconds(),
+                    0,
+                    0,
+                    "주안역",
+                    20,
+                    Boolean.FALSE
+            );
+        }
+
+        return new BusResponse(
+                shuttleBusStop,
+                ddgBusStop,
+                ygBusStop,
+                inhaFrontGateBusStop
+        );
+    }
+
 
     public RecommendResponse getBusArrivalData() throws JAXBException {
         List<BusStop> busStops = Arrays.stream(BusStop.values()).toList();
@@ -69,6 +109,47 @@ public class BusService {
         }
 
         return validateBus(buses);
+    }
+
+    private BusResponse.BusStop getBusStopInfo(RecommendResponse busArrivalData, BusStop... busStops) {
+        return busArrivalData.getBuses().stream()
+                .filter(bus -> Arrays.stream(busStops).anyMatch(stop -> stop.getBusStopId().equals(bus.getBusStopId())))
+                .min(Comparator.comparingInt(RecommendResponse.Bus::getRemainTime))
+                .map(bus -> new BusResponse.BusStop(
+                        bus.getBusStopName(),
+                        bus.getBusStopNumber(),
+                        bus.getBusNumber(),
+                        bus.getRemainTime(),
+                        bus.getRemainBusStop(),
+                        bus.getCongestion(),
+                        getBusDes(bus.getBusNumber()),
+                        getBusEstimatedTime(bus.getBusNumber()),
+                        getBusTransfer(bus.getBusNumber())))
+                .orElse(null);
+    }
+
+    private String getBusDes(String busNumber) {
+        for (Bus enumBus : Bus.values()) {
+            if (busNumber.equals(enumBus.getBusNumber()))
+                return enumBus.getDes().getToKorean();
+        }
+        return "Error";
+    }
+
+    private int getBusEstimatedTime(String busNumber) {
+        for (Bus enumBus : Bus.values()) {
+            if (busNumber.equals(enumBus.getBusNumber()))
+                return enumBus.getTime();
+        }
+        return 0;
+    }
+
+    private Boolean getBusTransfer(String busNumber) {
+        for (Bus enumBus : Bus.values()) {
+            if (busNumber.equals(enumBus.getBusNumber()))
+                return enumBus.getIsTransfer();
+        }
+        return null;
     }
 
     public Optional<ShuttleResponse> getShuttleBus() {
@@ -116,7 +197,9 @@ public class BusService {
         List<RecommendResponse.Bus> filteredBuses = buses.stream()
                 .filter(bus -> {
                     for (Bus enumBus : Bus.values()) {
-                        if (enumBus.getBusRouteId().equals(bus.getBusId())) {
+                        // 출발지랑 버스가 유효한지 체크
+                        if (enumBus.getBusRouteId().equals(bus.getBusId()) &&
+                                enumBus.getSrc().getBusStopId().equals(bus.getBusStopId())) {
                             bus.setBusNumber(enumBus.getBusNumber());
                             return true;
                         }
