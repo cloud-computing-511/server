@@ -17,10 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 소스 코드를 체크아웃합니다.
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       # Docker Buildx를 설정합니다.
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -31,13 +27,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y awscli
 
-      # AWS ECR에 로그인합니다.
-      - name: Login to AWS ECR
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws ecr get-login-password --region ${{ secrets.REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+      # Build를 위한 JDK 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
 
       # 서브모듈을 포함하여 소스 코드를 다시 체크아웃합니다.
       - name: Checkout submodule
@@ -51,9 +46,21 @@ jobs:
         run: |
           git submodule update --remote --recursive
 
+      # 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+        
       # 스크립트 파일에 실행 권한을 부여합니다.
       - name: Make deploy script executable
         run: chmod +x scripts/deploy.sh
+
+      # AWS ECR에 로그인합니다.
+      - name: Login to AWS ECR
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws ecr get-login-password --region ${{ secrets.REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       # 기존 이미지를 삭제합니다. 이미지가 없는 경우 무시하고 넘어갑니다.
       - name: Delete existing Docker images in ECR
@@ -72,6 +79,10 @@ jobs:
           if [ "$IMAGE_IDS" != "[]" ]; then
             aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag=$IMAGE_TAG --region $AWS_REGION --debug
           fi
+
+      # 빌드
+      - name: Build with Gradle
+        run: ./gradlew build
 
       # Docker 이미지를 빌드하고 ECR에 푸시합니다.
       - name: Build and push Docker image
