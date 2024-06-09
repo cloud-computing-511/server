@@ -25,6 +25,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      # AWS CLI 설치
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
       # AWS ECR에 로그인합니다.
       - name: Login to AWS ECR
         env:
@@ -84,3 +90,19 @@ jobs:
           deployment-config-name: CodeDeployDefault.OneAtATime
           description: "Deploying the latest Docker image"
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # AWS CLI를 사용하여 CodeDeploy 배포 트리거
+      - name: Deploy to EC2 using CodeDeploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          APPLICATION_NAME: ohhanahana-app
+          DEPLOYMENT_GROUP_NAME: ohhanahana-bg
+        run: |
+          aws deploy create-deployment \
+            --application-name $APPLICATION_NAME \
+            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --github-location repository=${{ github.repository }},commitId=${{ github.sha }} \
+            --description "Deploying the latest Docker image"
