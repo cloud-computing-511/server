@@ -3,6 +3,9 @@
 # 환경 변수 로드
 source /home/ubuntu/deployment/scripts/env.sh
 
+# ECR 로그인
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+
 echo "ECR_REGISTRY=$ECR_REGISTRY"
 echo "ECR_REPOSITORY=$ECR_REPOSITORY"
 
