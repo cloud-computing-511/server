@@ -81,16 +81,6 @@ jobs:
           docker build --build-arg SPRING_PROFILES_ACTIVE=main -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # AWS CodeDeploy를 사용하여 EC2 인스턴스에 배포합니다.
-      - name: Deploy to EC2 using CodeDeploy
-        uses: aws-actions/aws-codedeploy-github-action@v1.0.2
-        with:
-          application-name: ohhanahana-app
-          deployment-group: ohhanahana-bg
-          deployment-config-name: CodeDeployDefault.OneAtATime
-          description: "Deploying the latest Docker image"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
       # AWS CLI를 사용하여 CodeDeploy 배포 트리거
       - name: Deploy to EC2 using CodeDeploy
         env:
