@@ -60,14 +60,17 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.REGION }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
           IMAGE_TAG=latest
-          REPO_NAME=${{ secrets.ECR_REPOSITORY }}
-          REGISTRY_ID=$(aws sts get-caller-identity --query "Account" --output text)
-          # 기존 이미지가 있는지 확인
-          IMAGE_IDS=$(aws ecr list-images --repository-name $REPO_NAME --query "imageIds[?imageTag=='$IMAGE_TAG']" --output json)
+          REPO_NAME=$ECR_REPOSITORY
+          REGISTRY_ID=$(aws sts get-caller-identity --query "Account" --output text --region $AWS_REGION)
+          echo "Debug: REGISTRY_ID=$REGISTRY_ID, REPO_NAME=$REPO_NAME, IMAGE_TAG=$IMAGE_TAG"
+          IMAGE_IDS=$(aws ecr list-images --repository-name $REPO_NAME --query "imageIds[?imageTag=='$IMAGE_TAG']" --output json --region $AWS_REGION --debug)
+          echo "Debug: IMAGE_IDS=$IMAGE_IDS"
           if [ "$IMAGE_IDS" != "[]" ]; then
-            aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag=$IMAGE_TAG
+            aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag=$IMAGE_TAG --region $AWS_REGION --debug
           fi
 
       # Docker 이미지를 빌드하고 ECR에 푸시합니다.
