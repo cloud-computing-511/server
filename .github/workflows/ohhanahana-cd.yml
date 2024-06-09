@@ -76,13 +76,13 @@ jobs:
 
       # 권한 부여
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
 
-      # 빌드(test는 제외)
+      # 빌드
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: clean build -x test
+        run: ./gradlew clean build -x test
+        env:
+          SPRING_PROFILES_ACTIVE: main
 
       # Docker 이미지를 빌드하고 ECR에 푸시합니다.
       - name: Build and push Docker image

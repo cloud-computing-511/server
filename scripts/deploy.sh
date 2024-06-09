@@ -18,4 +18,4 @@ fi
 
 IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
 sudo docker pull $IMAGE_NAME
-sudo docker run -d --name $CONTAINER_NAME -e SPRING_PROFILE=main -e TZ=Asia/Seoul -p 8080:8080 $IMAGE_NAME
+sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME -e SPRING_PROFILE=main -e TZ=Asia/Seoul $IMAGE_NAME
