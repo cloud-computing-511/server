@@ -80,7 +80,7 @@ jobs:
 
       # 빌드(test는 제외)
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v4
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: clean build -x test
 
