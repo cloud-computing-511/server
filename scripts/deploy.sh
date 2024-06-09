@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# 환경 변수 로드
+source /home/ubuntu/deployment/scripts/env.sh
+
+# 환경 변수 확인 (디버깅을 위해 추가)
+echo "ECR_REGISTRY: $ECR_REGISTRY"
+echo "ECR_REPOSITORY: $ECR_REPOSITORY"
+
+# AWS ECR 로그인
+aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
+
 # 디렉토리로 이동
 cd /home/ubuntu/deployment
 
@@ -13,7 +23,7 @@ if [ -n "$EXISTING_CONTAINER" ]; then
 fi
 
 # 최신 이미지 가져오기
-IMAGE_NAME="992382726653.dkr.ecr.ap-northeast-2.amazonaws.com/ohhanahana-temp:latest"
+IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
 echo "IMAGE_NAME: $IMAGE_NAME"
 sudo docker pull $IMAGE_NAME
 

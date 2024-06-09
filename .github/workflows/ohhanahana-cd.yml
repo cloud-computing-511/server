@@ -92,22 +92,36 @@ jobs:
           docker build --build-arg SPRING_PROFILES_ACTIVE=main -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 스크립트 파일에 실행 권한을 부여합니다.
-      - name: Make deploy script executable
-        run: chmod +x scripts/deploy.sh
+      - name: Save environment variables to file
+        run: |
+          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" > scripts/env.sh
+          echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> scripts/env.sh
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> scripts/env.sh
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> scripts/env.sh
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> scripts/env.sh
 
-      # AWS CLI를 사용하여 CodeDeploy 배포 트리거
+      - name: Package application
+        run: zip -r deployment.zip appspec.yml scripts/
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws s3 cp deployment.zip s3://${{ secrets.S3_BUCKET }}/deployment.zip
+
       - name: Deploy to EC2 using CodeDeploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.REGION }}
-          APPLICATION_NAME: ohhanahana-app
-          DEPLOYMENT_GROUP_NAME: ohhanahana-bg
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APP_NAME }}
+          DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_GROUP_NAME }}
         run: |
           aws deploy create-deployment \
             --application-name $APPLICATION_NAME \
             --deployment-group-name $DEPLOYMENT_GROUP_NAME \
             --deployment-config-name CodeDeployDefault.OneAtATime \
-            --github-location repository=${{ github.repository }},commitId=${{ github.sha }} \
+            --s3-location bucket=${{ secrets.S3_BUCKET }},key=deployment.zip,bundleType=zip \
             --description "Deploying the latest Docker image"

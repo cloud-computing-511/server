@@ -5,6 +5,9 @@ files:
     destination: /home/ubuntu/deployment
 hooks:
   AfterInstall:
+    - location: scripts/env.sh
+      timeout: 300
+      runas: ubuntu
     - location: scripts/deploy.sh
       timeout: 300
       runas: ubuntu
