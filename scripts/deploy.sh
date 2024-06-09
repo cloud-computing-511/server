@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 환경 변수 로드
+source /home/ubuntu/deployment/scripts/env.sh
+
+echo "ECR_REGISTRY=$ECR_REGISTRY"
+echo "ECR_REPOSITORY=$ECR_REPOSITORY"
+
 cd /home/ubuntu/deployment
 
 CONTAINER_NAME="ohhanahana-app"
@@ -11,8 +17,10 @@ if [ -n "$EXISTING_CONTAINER" ]; then
 fi
 
 IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
+echo "IMAGE_NAME=$IMAGE_NAME"
 docker pull $IMAGE_NAME
 docker run -d --name $CONTAINER_NAME -p 8080:8080 $IMAGE_NAME
+
 
 
 
