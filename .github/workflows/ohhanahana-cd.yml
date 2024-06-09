@@ -77,7 +77,7 @@ jobs:
 
       # AWS CodeDeploy를 사용하여 EC2 인스턴스에 배포합니다.
       - name: Deploy to EC2 using CodeDeploy
-        uses: aws-actions/aws-codedeploy-github-actions@v0.0.3
+        uses: aws-actions/aws-codedeploy-github-action@v1.0.2
         with:
           application-name: ohhanahana-app
           deployment-group: ohhanahana-bg
