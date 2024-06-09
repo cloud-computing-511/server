@@ -103,6 +103,7 @@ jobs:
           echo "AWS_REGION=${{ secrets.REGION }}" >> scripts/env.sh
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> scripts/env.sh
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> scripts/env.sh
+          echo "SPRING_PROFILES_ACTIVE=main" >> scripts/env.sh
 
       # 배포 파일 패키징
       - name: Package deployment files
