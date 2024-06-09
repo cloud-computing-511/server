@@ -104,8 +104,6 @@ jobs:
           AWS_REGION: ${{ secrets.REGION }}
           APPLICATION_NAME: ohhanahana-app
           DEPLOYMENT_GROUP_NAME: ohhanahana-bg
-          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         run: |
           aws deploy create-deployment \
             --application-name $APPLICATION_NAME \
