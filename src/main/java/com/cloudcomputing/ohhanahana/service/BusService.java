@@ -50,6 +50,22 @@ public class BusService {
         return new BusResponse(shuttleBusStop, ddgBusStop, ygBusStop, inhaFrontGateBusStop);
     }
 
+    public RecommendResponse.Bus get511Bus() throws JAXBException {
+        String apiUrl = buildApiUrl(BusStop.INHA_BACK_GATE.getBusStopId());
+        String response = restTemplate.getForObject(apiUrl, String.class);
+
+        if (response != null) {
+            return parseBusArrivalData(response, BusStop.INHA_BACK_GATE).stream()
+                    .findFirst()
+                    .map(bus -> {
+                        bus.setBusNumber("511");
+                        return bus;
+                    })
+                    .orElse(null);
+        }
+        return null;
+    }
+
     private BusResponse.BusStop getShuttleBusStop(Optional<ShuttleBus> shuttleBus) {
         ShuttleBus bus = ShuttleBus.SHUTTLE_NONE;
         int secondsUntilBus = -1;
@@ -68,7 +84,7 @@ public class BusService {
         List<RecommendResponse.Bus> buses = new ArrayList<>();
 
         for (BusStop busStop : BusStop.values()) {
-            String apiUrl = buildApiUrl(busStop);
+            String apiUrl = buildApiUrl(busStop.getBusStopId());
             String response = restTemplate.getForObject(apiUrl, String.class);
 
             if (response != null) {
@@ -79,8 +95,8 @@ public class BusService {
         return BusMapper.validateBus(buses);
     }
 
-    private String buildApiUrl(BusStop busStop) {
-        return BASE_URI + serviceKey + "&numOfRows=10&pageNo=1&bstopId=" + busStop.getBusStopId();
+    private String buildApiUrl(String busStopId) {
+        return BASE_URI + serviceKey + "&numOfRows=10&pageNo=1&bstopId=" + busStopId;
     }
 
     private List<RecommendResponse.Bus> parseBusArrivalData(String response, BusStop busStop) throws JAXBException {
