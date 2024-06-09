@@ -98,7 +98,7 @@ jobs:
           echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> scripts/env.sh
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> scripts/env.sh
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> scripts/env.sh
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> scripts/env.sh
+          echo "AWS_REGION=${{ secrets.REGION }}" >> scripts/env.sh
 
       - name: Package application
         run: zip -r deployment.zip appspec.yml scripts/
@@ -107,7 +107,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: ${{ secrets.REGION }}
         run: |
           aws s3 cp deployment.zip s3://${{ secrets.S3_BUCKET }}/deployment.zip
 
@@ -115,7 +115,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: ${{ secrets.REGION }}
           APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APP_NAME }}
           DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_GROUP_NAME }}
         run: |
