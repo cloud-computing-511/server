@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '17'      
+          java-version: '17'
 
       # AWS ECR에 로그인합니다.
       - name: Login to AWS ECR
@@ -59,7 +59,7 @@ jobs:
           if [ "$IMAGE_IDS" != "[]" ]; then
             aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag=$IMAGE_TAG --region $AWS_REGION --debug
           fi
-          
+
       # 서브모듈을 포함하여 소스 코드를 다시 체크아웃합니다.
       - name: Checkout submodule
         uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
           # Active profile을 main으로 지정해서 build
           docker build --build-arg SPRING_PROFILES_ACTIVE=main -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          
+
       - name: Package deployment files
         run: |
           echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" > scripts/env.sh
