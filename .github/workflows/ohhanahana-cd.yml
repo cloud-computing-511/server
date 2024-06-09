@@ -32,27 +32,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '17'
-
-      # 서브모듈을 포함하여 소스 코드를 다시 체크아웃합니다.
-      - name: Checkout submodule
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          token: ${{ secrets.ACTIONS_TOKEN }}
-
-      # 서브모듈을 업데이트합니다.
-      - name: Update submodule
-        run: |
-          git submodule update --remote --recursive
-
-      # 권한 부여
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-        
-      # 스크립트 파일에 실행 권한을 부여합니다.
-      - name: Make deploy script executable
-        run: chmod +x scripts/deploy.sh
+          java-version: '17'      
 
       # AWS ECR에 로그인합니다.
       - name: Login to AWS ECR
@@ -79,10 +59,27 @@ jobs:
           if [ "$IMAGE_IDS" != "[]" ]; then
             aws ecr batch-delete-image --repository-name $REPO_NAME --image-ids imageTag=$IMAGE_TAG --region $AWS_REGION --debug
           fi
+          
+      # 서브모듈을 포함하여 소스 코드를 다시 체크아웃합니다.
+      - name: Checkout submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.ACTIONS_TOKEN }}
 
-      # 빌드
+      # 서브모듈을 업데이트합니다.
+      - name: Update submodule
+        run: |
+          git submodule update --remote --recursive
+
+      # 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew clean build -x test
+        env:
+          SPRING_PROFILES_ACTIVE: main
 
       # Docker 이미지를 빌드하고 ECR에 푸시합니다.
       - name: Build and push Docker image
@@ -94,6 +91,10 @@ jobs:
           # Active profile을 main으로 지정해서 build
           docker build --build-arg SPRING_PROFILES_ACTIVE=main -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # 스크립트 파일에 실행 권한을 부여합니다.
+      - name: Make deploy script executable
+        run: chmod +x scripts/deploy.sh
 
       # AWS CLI를 사용하여 CodeDeploy 배포 트리거
       - name: Deploy to EC2 using CodeDeploy
