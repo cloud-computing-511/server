@@ -13,7 +13,8 @@ if [ -n "$EXISTING_CONTAINER" ]; then
 fi
 
 # 최신 이미지 가져오기
-sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
+IMAGE_NAME="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
+sudo docker pull $IMAGE_NAME
 
 # 새 컨테이너 실행
-sudo docker run -d --name ohhanahana-app -p 8080:8080 $ECR_REGISTRY/$ECR_REPOSITORY:latest
+sudo docker run -d --name $CONTAINER_NAME -p 8080:8080 $IMAGE_NAME
