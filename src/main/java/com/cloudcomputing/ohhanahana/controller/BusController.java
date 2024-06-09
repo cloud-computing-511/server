@@ -45,4 +45,14 @@ public class BusController {
         }
     }
 
+    @GetMapping("/511")
+    public ResponseEntity<RecommendResponse.Bus> get511Bus() {
+        try {
+            RecommendResponse.Bus response = busService.get511Bus();
+            return ResponseEntity.ok(response);
+        } catch (JAXBException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
 }
