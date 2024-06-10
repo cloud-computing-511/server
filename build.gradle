@@ -45,9 +45,9 @@ tasks.register('copyGitSubmodule', Copy) {
 	include '*.yml'
 	into 'src/main/resources'
 }
-
-tasks.register('copyEnvScript', Copy) {
-	from './config'
-	include 'env.sh'
-	into 'scripts'
-}
+//
+//tasks.register('copyEnvScript', Copy) {
+//	from './config'
+//	include 'env.sh'
+//	into 'scripts'
+//}

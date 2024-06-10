@@ -9,7 +9,7 @@ name: Ohhanahana CD Pipeline
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -70,6 +70,7 @@ jobs:
             sudo docker rm $(docker ps -a -q --filter "name=ohhanahana-app") || true
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
             docker run -d --name ohhanahana-app -p 8080:8080 -e SPRING_PROFILE=main -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+
 #      # AWS CLI 설치
 #      - name: Install AWS CLI
 #        run: |
