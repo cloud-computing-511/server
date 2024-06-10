@@ -39,7 +39,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-processResources.dependsOn('copyGitSubmodule', 'copyEnvScript')
+processResources.dependsOn('copyGitSubmodule')
 tasks.register('copyGitSubmodule', Copy) {
 	from './config'
 	include '*.yml'
