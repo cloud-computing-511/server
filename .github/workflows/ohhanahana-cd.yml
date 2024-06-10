@@ -58,33 +58,45 @@ jobs:
       - name: Docker Hub push
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
 
-      # AWS CLI 설치
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      # Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo docker stop $(docker ps -a -q --filter "name=ohhanahana-app") || true
+            sudo docker rm $(docker ps -a -q --filter "name=ohhanahana-app") || true
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+            docker run -d --name ohhanahana-app -p 8080:8080 -e SPRING_PROFILE=main -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+#      # AWS CLI 설치
+#      - name: Install AWS CLI
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y awscli
+#
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.AWS_REGION }}
 
-      # CodeDeploy를 사용하여 EC2에 배포
-      - name: Deploy to EC2 using CodeDeploy
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APP_NAME }}
-          DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_GROUP_NAME }}
-
-        run: |
-          aws deploy create-deployment \
-            --application-name $APPLICATION_NAME \
-            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --description "Deploying the latest Docker image" \
-            --region $AWS_REGION  
-            --revision location=GitHub,repository=${{ github.repository }},commitId=${{ github.sha }}
+#      # CodeDeploy를 사용하여 EC2에 배포
+#      - name: Deploy to EC2 using CodeDeploy
+#        env:
+#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APP_NAME }}
+#          DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_GROUP_NAME }}
+#
+#        run: |
+#          aws deploy create-deployment \
+#            --application-name $APPLICATION_NAME \
+#            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
+#            --deployment-config-name CodeDeployDefault.OneAtATime \
+#            --description "Deploying the latest Docker image" \
+#            --region $AWS_REGION
+#            --revision location=GitHub,repository=${{ github.repository }},commitId=${{ github.sha }}
 
 
