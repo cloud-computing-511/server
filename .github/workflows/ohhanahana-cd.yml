@@ -70,6 +70,6 @@ jobs:
             --application-name $APPLICATION_NAME \
             --deployment-group-name $DEPLOYMENT_GROUP_NAME \
             --deployment-config-name CodeDeployDefault.OneAtATime \
-            --s3-location bucket=$S3_BUCKET,key=deployment.zip,bundleType=zip \
             --description "Deploying the latest Docker image" \
             --region $AWS_REGION  
+
