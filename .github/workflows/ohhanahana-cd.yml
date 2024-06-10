@@ -60,10 +60,16 @@ jobs:
 
       # CodeDeploy를 사용하여 EC2에 배포
       - name: Deploy to EC2 using CodeDeploy
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APP_NAME }}
+          DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_GROUP_NAME }}
+
         run: |
           aws deploy create-deployment \
-            --application-name ${{ secrets.CODEDEPLOY_APP_NAME }} \
-            --deployment-group-name ${{ secrets.CODEDEPLOY_GROUP_NAME }} \
+            --application-name $APPLICATION_NAME \
+            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
             --deployment-config-name CodeDeployDefault.OneAtATime \
+            --s3-location bucket=$S3_BUCKET,key=deployment.zip,bundleType=zip \
             --description "Deploying the latest Docker image" \
-            --region ${{ secrets.AWS_REGIONS }}
+            --region $AWS_REGION  
