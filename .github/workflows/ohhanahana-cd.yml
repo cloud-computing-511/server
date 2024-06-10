@@ -62,8 +62,8 @@ jobs:
       - name: Deploy to EC2 using CodeDeploy
         run: |
           aws deploy create-deployment \
-            --application-name ${{ CODEDEPLOY_APP_NAME }} \
-            --deployment-group-name ${{ CODEDEPLOY_GROUP_NAME }} \
+            --application-name ${{ secrets.CODEDEPLOY_APP_NAME }} \
+            --deployment-group-name ${{ secrets.CODEDEPLOY_GROUP_NAME }} \
             --deployment-config-name CodeDeployDefault.OneAtATime \
             --description "Deploying the latest Docker image" \
             --region ${{ secrets.AWS_REGIONS }}
