@@ -1,5 +1,6 @@
 package com.cloudcomputing.ohhanahana.dto.response;
 
+import com.cloudcomputing.ohhanahana.enums.Bus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

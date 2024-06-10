@@ -1,0 +1,103 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Ohhanahana CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Build를 위한 JDK 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      # 서브모듈을 포함하여 소스 코드 체크아웃
+      - name: Checkout submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          token: ${{ secrets.ACTIONS_TOKEN }}
+
+      # 서브모듈을 업데이트
+      - name: Update submodule
+        run: |
+          git submodule update --remote --recursive
+
+      # 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 빌드
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      # Docker 이미지 빌드
+      - name: Docker image build
+        run: docker build --build-arg SPRING_PROFILE=main -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest .
+
+      # DockerHub 로그인
+      - name: DockerHub login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # Docker Hub 이미지 푸시
+      - name: Docker Hub push
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+
+      # Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo docker stop $(docker ps -a -q --filter "name=ohhanahana-app") || true
+            sudo docker rm $(docker ps -a -q --filter "name=ohhanahana-app") || true
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+            docker run -d --name ohhanahana-app -p 8080:8080 -e SPRING_PROFILE=main -e TZ=Asia/Seoul ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
+
+#      # AWS CLI 설치
+#      - name: Install AWS CLI
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y awscli
+#
+#      - name: Configure AWS credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+
+#      # CodeDeploy를 사용하여 EC2에 배포
+#      - name: Deploy to EC2 using CodeDeploy
+#        env:
+#          AWS_REGION: ${{ secrets.AWS_REGION }}
+#          APPLICATION_NAME: ${{ secrets.CODEDEPLOY_APP_NAME }}
+#          DEPLOYMENT_GROUP_NAME: ${{ secrets.CODEDEPLOY_GROUP_NAME }}
+#
+#        run: |
+#          aws deploy create-deployment \
+#            --application-name $APPLICATION_NAME \
+#            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
+#            --deployment-config-name CodeDeployDefault.OneAtATime \
+#            --description "Deploying the latest Docker image" \
+#            --region $AWS_REGION
+#            --revision location=GitHub,repository=${{ github.repository }},commitId=${{ github.sha }}
+
+
