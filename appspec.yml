@@ -4,6 +4,10 @@ files:
   - source: /
     destination: /home/ubuntu/deployment
 hooks:
+  BeforeInstall:
+    - location: scripts/env.sh
+      timeout: 300
+      runas: ubuntu
   AfterInstall:
     - location: scripts/deploy.sh
       timeout: 300

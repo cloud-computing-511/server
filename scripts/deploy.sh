@@ -1,21 +1,18 @@
 #!/bin/bash
 
-# 환경 변수 로드
+# 환경변수 로드
 source /home/ubuntu/deployment/scripts/env.sh
-
-# ECR 로그인
-aws ecr get-login-password --region $AWS_REGION | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
 
 cd /home/ubuntu/deployment
 
-CONTAINER_NAME="ohhanahana-app"
-EXISTING_CONTAINER=$(sudo docker ps -a -q --filter "name=$CONTAINER_NAME")
+# 기존에 실행 중인 컨테이너 중지
+sudo docker stop $(docker ps -a -q --filter "name=ohhanahana-app") || true
 
-if [ -n "$EXISTING_CONTAINER" ]; then
-  sudo docker stop $EXISTING_CONTAINER
-  sudo docker rm $EXISTING_CONTAINER
-fi
+# 기존에 중지된 컨테이너 삭제
+sudo docker rm $(docker ps -a -q --filter "name=ohhanahana-app") || true
 
-IMAGE_NAME="${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
-sudo docker pull $IMAGE_NAME
-sudo docker run -d -p 8080:8080 --name $CONTAINER_NAME -e SPRING_PROFILE=main -e TZ=Asia/Seoul $IMAGE_NAME
+# 최신 Docker 이미지 가져오기
+sudo docker pull $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:latest
+
+# 새로운 컨테이너 실행
+docker run -d --name ohhanahana-app -p 8080:8080 -e SPRING_PROFILE=main -e TZ=Asia/Seoul $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:latest
