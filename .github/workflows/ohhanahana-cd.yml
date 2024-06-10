@@ -66,4 +66,3 @@ jobs:
             --deployment-group-name ${{ secrets.CODEDEPLOY_GROUP_NAME }} \
             --deployment-config-name CodeDeployDefault.OneAtATime \
             --description "Deploying the latest Docker image" \
-            --region ${{ secrets.AWS_REGIONS }}
