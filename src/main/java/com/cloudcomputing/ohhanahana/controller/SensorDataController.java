@@ -1,6 +1,7 @@
 package com.cloudcomputing.ohhanahana.controller;
 
 import com.cloudcomputing.ohhanahana.dto.response.SensorDataResponse;
+import com.cloudcomputing.ohhanahana.entity.SensorData;
 import com.cloudcomputing.ohhanahana.service.SensorDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +19,10 @@ public class SensorDataController {
     @GetMapping
     public ResponseEntity<SensorDataResponse> findSensorData() {
         return ResponseEntity.ok(sensorDataService.findSensorData());
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<Object> findTest() {
+        return ResponseEntity.ok(sensorDataService.findLatestSensorData());
     }
 }

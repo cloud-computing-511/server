@@ -15,13 +15,13 @@ public class SensorDataResponse {
 
     private String currentLocation;
     private String currentDateTime;
-    private String congestion;
-    private int expectedWaitingTime;
-    private int expectedWaitingPeople;
+    private Congestion congestion;
+    private String expectedWaitingTime;
+    private String expectedWaitingPeople;
 
     public static SensorDataResponse toDTO(String currentLocation, String currentDateTime,
-        String congestion,
-        int expectedWaitingTime, int expectedWaitingPeople) {
+        Congestion congestion,
+        String expectedWaitingTime, String expectedWaitingPeople) {
 
         return SensorDataResponse.builder()
             .currentLocation(currentLocation)
