@@ -5,6 +5,7 @@ import com.cloudcomputing.ohhanahana.dto.response.SensorDataResponse;
 import com.cloudcomputing.ohhanahana.entity.SensorData;
 import com.cloudcomputing.ohhanahana.enums.Congestion;
 import com.cloudcomputing.ohhanahana.repository.SensorDataRepository;
+import jakarta.xml.bind.JAXBException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,8 +18,9 @@ import org.springframework.stereotype.Service;
 public class SensorDataService {
 
     private final SensorDataRepository sensorDataRepository;
+    private final BusService busService;
 
-    public SensorDataResponse findLatestSensorData() {
+    public SensorDataResponse findLatestSensorData() throws JAXBException {
         Congestion congestion = null;
 
         LocalDateTime now = LocalDateTime.now();
@@ -75,11 +77,13 @@ public class SensorDataService {
         }
     }
 
-    private String calculateWaitingTime(Congestion congestion) {
+    private String calculateWaitingTime(Congestion congestion) throws JAXBException {
+        int remain511Minute = busService.get511BusRemainMinute();
+
         return switch (congestion) {
-            case SPARE -> "10분";
-            case NORMAL -> "15분";
-            case CONGESTION -> "20분";
+            case SPARE -> remain511Minute + "분";
+            case NORMAL -> remain511Minute + 5 + "분";
+            case CONGESTION -> remain511Minute + 10 + "분";
             default -> "-";
         };
     }

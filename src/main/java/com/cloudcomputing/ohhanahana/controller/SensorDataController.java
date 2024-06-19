@@ -2,6 +2,7 @@ package com.cloudcomputing.ohhanahana.controller;
 
 import com.cloudcomputing.ohhanahana.dto.response.SensorDataResponse;
 import com.cloudcomputing.ohhanahana.service.SensorDataService;
+import jakarta.xml.bind.JAXBException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,7 @@ public class SensorDataController {
     private final SensorDataService sensorDataService;
 
     @GetMapping("/")
-    public ResponseEntity<Object> findTest() {
+    public ResponseEntity<Object> findTest() throws JAXBException {
         return ResponseEntity.ok(sensorDataService.findLatestSensorData());
     }
 }

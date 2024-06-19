@@ -66,6 +66,22 @@ public class BusService {
         return null;
     }
 
+    public int get511BusRemainMinute() throws  JAXBException {
+        String apiUrl = buildApiUrl(BusStop.INHA_BACK_GATE.getBusStopId());
+        String response = restTemplate.getForObject(apiUrl, String.class);
+
+        if (response != null) {
+            return parseBusArrivalData(response, BusStop.INHA_BACK_GATE).stream()
+                .findFirst()
+                .map(bus -> {
+                    bus.setBusNumber("511");
+                    return (bus.getRemainTime()/60);
+                })
+                .orElse(0);
+        }
+        return 0;
+    }
+
     private BusResponse.BusStop getShuttleBusStop(Optional<ShuttleBus> shuttleBus) {
         ShuttleBus bus = ShuttleBus.SHUTTLE_NONE;
         int secondsUntilBus = -1;
