@@ -16,12 +16,7 @@ public class SensorDataController {
 
     private final SensorDataService sensorDataService;
 
-    @GetMapping
-    public ResponseEntity<SensorDataResponse> findSensorData() {
-        return ResponseEntity.ok(sensorDataService.findSensorData());
-    }
-
-    @GetMapping("/test")
+    @GetMapping("/")
     public ResponseEntity<Object> findTest() {
         return ResponseEntity.ok(sensorDataService.findLatestSensorData());
     }

@@ -8,7 +8,6 @@ import com.cloudcomputing.ohhanahana.repository.SensorDataRepository;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,12 +17,6 @@ import org.springframework.stereotype.Service;
 public class SensorDataService {
 
     private final SensorDataRepository sensorDataRepository;
-
-    public SensorDataResponse findSensorData() {
-        //sensorDataRepository.findLatest();
-
-        return null;
-    }
 
     public SensorDataResponse findLatestSensorData() {
         Congestion congestion = null;
