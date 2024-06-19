@@ -1,7 +1,6 @@
 package com.cloudcomputing.ohhanahana.controller;
 
 import com.cloudcomputing.ohhanahana.dto.response.SensorDataResponse;
-import com.cloudcomputing.ohhanahana.entity.SensorData;
 import com.cloudcomputing.ohhanahana.service.SensorDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
