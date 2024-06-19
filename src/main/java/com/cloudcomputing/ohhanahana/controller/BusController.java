@@ -1,5 +1,6 @@
 package com.cloudcomputing.ohhanahana.controller;
 
+import com.cloudcomputing.ohhanahana.dto.response.BusResponse;
 import com.cloudcomputing.ohhanahana.dto.response.RecommendResponse;
 import com.cloudcomputing.ohhanahana.dto.response.ShuttleResponse;
 import com.cloudcomputing.ohhanahana.service.BusService;
@@ -32,6 +33,26 @@ public class BusController {
         return busService.getShuttleBus()
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.ok(null));
+    }
+
+    @GetMapping
+    public ResponseEntity<BusResponse> findAllBus() {
+        try {
+            BusResponse response = busService.getAllBus(); // 인스턴스를 통해 메서드 호출
+            return ResponseEntity.ok(response);
+        } catch (JAXBException e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/511")
+    public ResponseEntity<RecommendResponse.Bus> get511Bus() {
+        try {
+            RecommendResponse.Bus response = busService.get511Bus();
+            return ResponseEntity.ok(response);
+        } catch (JAXBException e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
 }
