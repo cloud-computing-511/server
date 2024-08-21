@@ -20,4 +20,9 @@ public class SensorDataController {
     public ResponseEntity<Object> findTest() throws JAXBException {
         return ResponseEntity.ok(sensorDataService.findLatestSensorData());
     }
+
+    @GetMapping("/random")
+    public ResponseEntity<Object> findRandomSensorData() throws JAXBException {
+        return ResponseEntity.ok(sensorDataService.generateRandomSensorData());
+    }
 }
