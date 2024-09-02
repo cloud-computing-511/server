@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,27 @@ public class SensorDataService {
                 congestion = Congestion.SENSOR_ERROR;
             }
         }
+
+        return SensorDataResponse.toDTO(
+            "인하대학교",
+            now.format(formatter),
+            congestion,
+            calculateWaitingTime(congestion),
+            calculatePeople(congestion)
+        );
+    }
+
+    public SensorDataResponse generateRandomSensorData() throws JAXBException {
+        Random random = new Random();
+        int sensor1Value = random.nextInt(150) + 1;
+        int sensor2Value = random.nextInt(150) + 1;
+        int sensor3Value = random.nextInt(150) + 1;
+        int sensor4Value = random.nextInt(150) + 1;
+
+        Congestion congestion = determineCongestion(sensor1Value, sensor2Value, sensor3Value, sensor4Value);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a");
 
         return SensorDataResponse.toDTO(
             "인하대학교",

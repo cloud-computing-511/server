@@ -1,4 +1,4 @@
-package com.cloudcomputing.ohhanahana.common;
+package com.cloudcomputing.ohhanahana.config;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

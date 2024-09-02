@@ -12,7 +12,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@DynamoDBTable(tableName = "inha-team-project-03-dynamodb")
+
+@DynamoDBTable(tableName = "ohhanahana-dynamodb")
 @Data
 @Builder
 @AllArgsConstructor
