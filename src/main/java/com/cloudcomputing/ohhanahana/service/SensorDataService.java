@@ -99,22 +99,22 @@ public class SensorDataService {
         }
     }
 
-    private String calculateWaitingTime(Congestion congestion) throws JAXBException {
+    private int calculateWaitingTime(Congestion congestion) throws JAXBException {
         int remain511Minute = busService.get511BusRemainMinute();
 
         return switch (congestion) {
-            case SPARE -> remain511Minute + "분";
-            case NORMAL -> remain511Minute + 5 + "분";
-            case CONGESTION -> remain511Minute + 10 + "분";
-            default -> "-";
+            case SPARE -> remain511Minute;
+            case NORMAL -> remain511Minute;
+            case CONGESTION -> remain511Minute + 10;
+            default -> 0;
         };
     }
 
     private String calculatePeople(Congestion congestion) {
         return switch (congestion) {
-            case SPARE -> "15명";
-            case NORMAL -> "25명";
-            case CONGESTION -> "35명";
+            case SPARE -> "15";
+            case NORMAL -> "25";
+            case CONGESTION -> "35";
             default -> "-";
         };
     }
